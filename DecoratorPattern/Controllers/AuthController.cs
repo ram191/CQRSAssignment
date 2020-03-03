@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using DecoratorPattern.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -12,6 +13,7 @@ namespace DecoratorPattern.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [AllowAnonymous]
     public class AuthController : Controller
     {
         public IConfiguration _config;
@@ -22,7 +24,7 @@ namespace DecoratorPattern.Controllers
         }
 
         [HttpPost]
-        public IActionResult Login([FromBody]Customer login)
+        public IActionResult Login([FromBody]Auth login)
         {
             IActionResult response = Unauthorized();
             var user = AuthenticateUser(login);
@@ -36,7 +38,7 @@ namespace DecoratorPattern.Controllers
             return response;
         }
 
-        private string GenerateJSONWebToken(Customer userinfo)
+        private string GenerateJSONWebToken(Auth userinfo)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -45,16 +47,16 @@ namespace DecoratorPattern.Controllers
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        private Customer AuthenticateUser(Customer login)
+        private Auth AuthenticateUser(Auth login)
         {
-            var auth = new List<Customer>()
+            var auth = new List<Auth>()
             {
-                new Customer() { Username = "HambaAllah", Password = "rahasia" },
-                new Customer() { Username = "userterdaftar", Password = "bandungsupermall" },
-                new Customer() { Username = "user3", Password = "secret" },
+                new Auth() { Username = "HambaAllah", Password = "rahasia" },
+                new Auth() { Username = "userterdaftar", Password = "bandungsupermall" },
+                new Auth() { Username = "user3", Password = "secret" },
             };
 
-            Customer user = null;
+            Auth user = null;
 
             if (auth.Any(x => x.Username == login.Username) && auth.Any(x => x.Password == login.Password))
             {
@@ -63,5 +65,11 @@ namespace DecoratorPattern.Controllers
 
             return user;
         }
+    }
+
+    public class Auth
+    {
+        public string Username { get; set; }
+        public string Password { get; set; }
     }
 }
