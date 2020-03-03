@@ -12,8 +12,8 @@ namespace DecoratorPattern.Model
         public string Exp_year { get; set; }
         public int Postal_code { get; set; }
         public string Credit_card_number { get; set; }
-        public DateTime Created_at { get; set; }
-        public DateTime Updated_at { get; set; }
+        public DateTime Created_at { get; set; } = DateTime.Now;
+        public DateTime Updated_at { get; set; } = DateTime.Now;
 
         public Customer Customer { get; set; }
     }
