@@ -27,5 +27,11 @@
   <ItemGroup>
     <Folder Include="Validator\" />
     <Folder Include="Model\" />
+    <Folder Include="Application\" />
+    <Folder Include="Application\UseCases\" />
+    <Folder Include="Application\UseCases\Product\" />
+    <Folder Include="Application\UseCases\Product\Models\" />
+    <Folder Include="Application\UseCases\Product\Queries\" />
+    <Folder Include="Application\UseCases\Product\Queries\GetCustomers\" />
   </ItemGroup>
 </Project>

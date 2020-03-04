@@ -7,6 +7,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DecoratorPattern.Model;
 using Microsoft.Extensions.Logging;
+using MediatR;
+using DecoratorPattern.Application.UseCases.Product.Queries.GetCustomers;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DecoratorPattern.Controllers
 {
@@ -14,84 +18,78 @@ namespace DecoratorPattern.Controllers
     [Route("[controller]")]
     public class CustomerController : ControllerBase
     {
-        private readonly ILogger<CustomerController> _logger;
-        private readonly ECommerceContext _context;
+        private IMediator _mediatr;
 
-        public CustomerController(ILogger<CustomerController> logger, ECommerceContext context)
+        protected IMediator Mediator => _mediatr ?? (_mediatr = HttpContext.RequestServices.GetService<IMediator>());
+
+        public CustomerController()
         {
-            _logger = logger;
-            _context = context;
+
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<ActionResult<GetCustomersDTO>> Get()
         {
-            List<object> allData = new List<object>();
-            var data = _context.Customers;
-            foreach (var x in data)
-            {
-                allData.Add(new { x.Id, x.Full_name, x.Username, x.Email, x.Phone_number, gender = Enum.GetName(typeof(Gender), x.Sex)});
-            }
-            return Ok(new { Message = "Success retreiving data", Status = true, Data = allData });
+            return Ok(await Mediator.Send(new GetCustomersQuery() { }));
         }
 
-        [HttpGet("{id}")]
-        public IActionResult Get(int id)
-        {
-            var data = _context.Customers.Find(id);
+        //[HttpGet("{id}")]
+        //public IActionResult Get(int id)
+        //{
+        //    var data = _context.Customers.Find(id);
 
-            if (data == null)
-            {
-                return NotFound(new { Message = "Customer not found", Status = false });
-            }
+        //    if (data == null)
+        //    {
+        //        return NotFound(new { Message = "Customer not found", Status = false });
+        //    }
 
-            return Ok(new { Message = "Success retreiving data", Status = true, Data = data });
-        }
+        //    return Ok(new { Message = "Success retreiving data", Status = true, Data = data });
+        //}
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var data = await _context.Customers.FindAsync(id);
+        //[HttpDelete("{id}")]
+        //public async Task<IActionResult> Delete(int id)
+        //{
+        //    var data = await _context.Customers.FindAsync(id);
 
-            if (data == null)
-            {
-                return NotFound(new { Message = "Customer not found", Status = false });
-            }
+        //    if (data == null)
+        //    {
+        //        return NotFound(new { Message = "Customer not found", Status = false });
+        //    }
 
-            _context.Customers.Remove(data);
-            await _context.SaveChangesAsync();
+        //    _context.Customers.Remove(data);
+        //    await _context.SaveChangesAsync();
 
-            return StatusCode(204);
-        }
+        //    return StatusCode(204);
+        //}
 
-        [HttpPost]
-        public IActionResult Post(RequestData<Customer> data)
-        {
-            if(data.Data.Attributes.Gender == "male")
-            {
-                data.Data.Attributes.Sex = Gender.male;
-            }
-            else if(data.Data.Attributes.Gender == "female")
-            {
-                data.Data.Attributes.Sex = Gender.female;
-            }
-            _context.Customers.Add(data.Data.Attributes);
-            _context.SaveChanges();
-            return Ok();
-        }
+        //[HttpPost]
+        //public IActionResult Post(RequestData<Customer> data)
+        //{
+        //    if(data.Data.Attributes.Gender == "male")
+        //    {
+        //        data.Data.Attributes.Sex = Gender.male;
+        //    }
+        //    else if(data.Data.Attributes.Gender == "female")
+        //    {
+        //        data.Data.Attributes.Sex = Gender.female;
+        //    }
+        //    _context.Customers.Add(data.Data.Attributes);
+        //    _context.SaveChanges();
+        //    return Ok();
+        //}
 
-        [HttpPut("{id}")]
-        public IActionResult Put(int id, RequestData<Customer> data)
-        {
-            var query = _context.Customers.Find(id);
-            query.Full_name = data.Data.Attributes.Full_name;
-            query.Username = data.Data.Attributes.Username;
-            query.Birthdate = data.Data.Attributes.Birthdate;
-            query.Email = data.Data.Attributes.Email;
-            query.Phone_number = data.Data.Attributes.Phone_number;
-            query.Updated_at = DateTime.Now;
-            _context.SaveChanges();
-            return NoContent();
-        }
+        //[HttpPut("{id}")]
+        //public IActionResult Put(int id, RequestData<Customer> data)
+        //{
+        //    var query = _context.Customers.Find(id);
+        //    query.Full_name = data.Data.Attributes.Full_name;
+        //    query.Username = data.Data.Attributes.Username;
+        //    query.Birthdate = data.Data.Attributes.Birthdate;
+        //    query.Email = data.Data.Attributes.Email;
+        //    query.Phone_number = data.Data.Attributes.Phone_number;
+        //    query.Updated_at = DateTime.Now;
+        //    _context.SaveChanges();
+        //    return NoContent();
+        //}
     }
 }

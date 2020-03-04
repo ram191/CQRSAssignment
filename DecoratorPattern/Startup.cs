@@ -19,6 +19,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using DecoratorPattern.Application.UseCases.Product.Queries.GetCustomers;
+using System.Reflection;
 
 namespace DecoratorPattern
 {
@@ -38,11 +40,12 @@ namespace DecoratorPattern
                 => opt.UseNpgsql("Host=localhost;Database=ecommercedb;Username=postgres;Password=gigaming"));
             services.AddControllers();
 
+            services.AddMediatR(typeof(GetCustomersQueryHandler).GetTypeInfo().Assembly);
             services.AddMvc().AddFluentValidation();
-            services.AddTransient<IValidator<RequestData<Customer>>, CustomerValidator>();
-            services.AddTransient<IValidator<RequestData<CustomerPaymentCard>>, CustomerPaymentValidator>();
-            services.AddTransient<IValidator<RequestData<Product>>, ProductValidator>();
-            services.AddTransient<IValidator<RequestData<Merchant>>, MerchantValidator>();
+            //services.AddTransient<IValidator<RequestData<Customer>>, CustomerValidator>();
+            //services.AddTransient<IValidator<RequestData<CustomerPaymentCard>>, CustomerPaymentValidator>();
+            //services.AddTransient<IValidator<RequestData<Product>>, ProductValidator>();
+            //services.AddTransient<IValidator<RequestData<Merchant>>, MerchantValidator>();
 
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestValidator<,>));
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
@@ -58,7 +61,6 @@ namespace DecoratorPattern
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
                 };
             });
-            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
