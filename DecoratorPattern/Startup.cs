@@ -37,6 +37,14 @@ namespace DecoratorPattern
             services.AddDbContext<ECommerceContext>(opt
                 => opt.UseNpgsql("Host=localhost;Database=ecommercedb;Username=postgres;Password=gigaming"));
             services.AddControllers();
+
+            services.AddMvc().AddFluentValidation();
+            services.AddTransient<IValidator<RequestData<Customer>>, CustomerValidator>();
+            services.AddTransient<IValidator<RequestData<CustomerPaymentCard>>, CustomerPaymentValidator>();
+            services.AddTransient<IValidator<RequestData<Product>>, ProductValidator>();
+            services.AddTransient<IValidator<RequestData<Merchant>>, MerchantValidator>();
+
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestValidator<,>));
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
             {
                 opt.TokenValidationParameters = new TokenValidationParameters
@@ -50,14 +58,7 @@ namespace DecoratorPattern
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
                 };
             });
-            services.AddMvc().AddFluentValidation();
-
-            services.AddTransient<IValidator<Customer>, CustomerValidator>()
-            .AddTransient<IValidator<CustomerPaymentCard>, CustomerPaymentValidator>()
-            .AddTransient<IValidator<Product>, ProductValidator>()
-            .AddTransient<IValidator<Merchant>, MerchantValidator>();
-
-            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestValidator<,>));
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

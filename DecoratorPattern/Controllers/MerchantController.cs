@@ -61,22 +61,22 @@ namespace DecoratorPattern.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post(Merchant data)
+        public IActionResult Post(RequestData<Merchant> data)
         {
-            _context.Merchants.Add(data);
+            _context.Merchants.Add(data.Data.Attributes);
             _context.SaveChanges();
             return Ok();
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(int id, Merchant data)
+        public IActionResult Put(int id, RequestData<Merchant> data)
         {
             var query = _context.Merchants.Find(id);
-            query.Name = data.Name;
-            query.Image = data.Image;
-            query.Address = data.Address;
-            query.Rating = data.Rating;
-            query.Updated_at = data.Updated_at;
+            query.Name = data.Data.Attributes.Name;
+            query.Image = data.Data.Attributes.Image;
+            query.Address = data.Data.Attributes.Address;
+            query.Rating = data.Data.Attributes.Rating;
+            query.Updated_at = data.Data.Attributes.Updated_at;
             _context.SaveChanges();
             return NoContent();
         }

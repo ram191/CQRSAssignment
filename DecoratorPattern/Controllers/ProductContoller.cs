@@ -59,19 +59,19 @@ namespace DecoratorPattern.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post(Product data)
+        public IActionResult Post(RequestData<Product> data)
         {
-            _context.Products.Add(data);
+            _context.Products.Add(data.Data.Attributes);
             _context.SaveChanges();
             return Ok();
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(int id, Product data)
-        {
+        public IActionResult Put(int id, RequestData<Product> data)
+        { 
             var query = _context.Products.Find(id);
-            query.Name = data.Name;
-            query.Price = data.Price;
+            query.Name = data.Data.Attributes.Name;
+            query.Price = data.Data.Attributes.Price;
             query.Updated_at = DateTime.Now;
             _context.SaveChanges();
             return NoContent();

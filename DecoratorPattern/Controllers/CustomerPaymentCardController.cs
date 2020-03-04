@@ -61,23 +61,23 @@ namespace DecoratorPattern.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post(CustomerPaymentCard data)
+        public IActionResult Post(RequestData<CustomerPaymentCard> data)
         {
-            _context.CustomerPaymentCards.Add(data);
+            _context.CustomerPaymentCards.Add(data.Data.Attributes);
             _context.SaveChanges();
             return Ok();
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(int id, CustomerPaymentCard data)
+        public IActionResult Put(int id, RequestData<CustomerPaymentCard> data)
         {
             var query = _context.CustomerPaymentCards.Find(id);
-            query.Name_on_card = data.Name_on_card;
-            query.Exp_month = data.Exp_month;
-            query.Exp_year = data.Exp_year;
-            query.Postal_code = data.Postal_code;
-            query.Credit_card_number = data.Credit_card_number;
-            query.Updated_at = data.Updated_at;
+            query.Name_on_card = data.Data.Attributes.Name_on_card;
+            query.Exp_month = data.Data.Attributes.Exp_month;
+            query.Exp_year = data.Data.Attributes.Exp_year;
+            query.Postal_code = data.Data.Attributes.Postal_code;
+            query.Credit_card_number = data.Data.Attributes.Credit_card_number;
+            query.Updated_at = data.Data.Attributes.Updated_at;
             _context.SaveChanges();
             return NoContent();
         }

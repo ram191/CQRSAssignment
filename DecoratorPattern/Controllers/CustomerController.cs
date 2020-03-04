@@ -30,7 +30,7 @@ namespace DecoratorPattern.Controllers
             var data = _context.Customers;
             foreach (var x in data)
             {
-                allData.Add(new { x.Id, x.Full_name, x.Username, x.Email, x.Phone_number, gender = Enum.GetName(typeof(Gender), x.Gender)});
+                allData.Add(new { x.Id, x.Full_name, x.Username, x.Email, x.Phone_number, gender = Enum.GetName(typeof(Gender), x.Sex)});
             }
             return Ok(new { Message = "Success retreiving data", Status = true, Data = allData });
         }
@@ -65,22 +65,30 @@ namespace DecoratorPattern.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post(Customer data)
+        public IActionResult Post(RequestData<Customer> data)
         {
-            _context.Customers.Add(data);
+            if(data.Data.Attributes.Gender == "male")
+            {
+                data.Data.Attributes.Sex = Gender.male;
+            }
+            else if(data.Data.Attributes.Gender == "female")
+            {
+                data.Data.Attributes.Sex = Gender.female;
+            }
+            _context.Customers.Add(data.Data.Attributes);
             _context.SaveChanges();
             return Ok();
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(int id, Customer data)
+        public IActionResult Put(int id, RequestData<Customer> data)
         {
             var query = _context.Customers.Find(id);
-            query.Full_name = data.Full_name;
-            query.Username = data.Username;
-            query.Birthdate = data.Birthdate;
-            query.Email = data.Email;
-            query.Phone_number = data.Phone_number;
+            query.Full_name = data.Data.Attributes.Full_name;
+            query.Username = data.Data.Attributes.Username;
+            query.Birthdate = data.Data.Attributes.Birthdate;
+            query.Email = data.Data.Attributes.Email;
+            query.Phone_number = data.Data.Attributes.Phone_number;
             query.Updated_at = DateTime.Now;
             _context.SaveChanges();
             return NoContent();
