@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DecoratorPattern.Model;
 using Microsoft.Extensions.Logging;
+using MediatR;
+using DecoratorPattern.Application.UseCases.ProductMediator.Queries.GetProducts;
+using DecoratorPattern.Application.UseCases.ProductMediator.Commands;
 
 namespace DecoratorPattern.Controllers
 {
@@ -14,67 +17,48 @@ namespace DecoratorPattern.Controllers
     [Route("[controller]")]
     public class ProductController : ControllerBase
     {
-        private readonly ILogger<ProductController> _logger;
-        private readonly ECommerceContext _context;
+        private IMediator _mediatr;
 
-        public ProductController(ILogger<ProductController> logger, ECommerceContext context)
+        public ProductController(IMediator mediatr)
         {
-            _logger = logger;
-            _context = context;
+            _mediatr = mediatr;
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<ActionResult<GetProductsDTO>> Get()
         {
-            return Ok(new { Message = "Success retreiving data", Status = true, Data = _context.Products });
+            var result = new GetProductsQuery();
+            return Ok(await _mediatr.Send(result));
         }
 
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> GetAsync(int id)
         {
-            var data = _context.Products.Find(id);
-
-            if (data == null)
-            {
-                return NotFound(new { Message = "Product not found", Status = false });
-            }
-
-            return Ok(new { Message = "Success retreiving data", Status = true, Data = data });
+            var result = new GetProductQuery(id);
+            return result != null ? (IActionResult)Ok(await _mediatr.Send(result)) : NotFound(new { Message = "Product not found" });
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var data = await _context.Products.FindAsync(id);
-
-            if (data == null)
-            {
-                return NotFound(new { Message = "Product not found", Status = false });
-            }
-
-            _context.Products.Remove(data);
-            await _context.SaveChangesAsync();
-
-            return StatusCode(204);
+            var command = new DeleteProductCommand(id);
+            var result = await _mediatr.Send(command);
+            return result != null ? (IActionResult)Ok(new { Message = "success" }) : NotFound(new { Message = "Product not found" });
         }
 
         [HttpPost]
-        public IActionResult Post(RequestData<Product> data)
+        public async Task<IActionResult> PostAsync(ProductCommand data)
         {
-            _context.Products.Add(data.Data.Attributes);
-            _context.SaveChanges();
-            return Ok();
+            var result = await _mediatr.Send(data);
+            return Ok(result);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(int id, RequestData<Product> data)
-        { 
-            var query = _context.Products.Find(id);
-            query.Name = data.Data.Attributes.Name;
-            query.Price = data.Data.Attributes.Price;
-            query.Updated_at = DateTime.Now;
-            _context.SaveChanges();
-            return NoContent();
+        public async Task<IActionResult> Put(int id, PutProductCommand data)
+        {
+            data.Data.Attributes.Id = id;
+            var result = await _mediatr.Send(data);
+            return Ok(result);
         }
     }
 }

@@ -6,7 +6,7 @@ using FluentValidation;
 
 namespace DecoratorPattern.Validator
 {
-    public class CustomerValidator : AbstractValidator<RequestData<Customer>>
+    public class CustomerValidator : AbstractValidator<CommandDTO<Customer>>
     {
         public CustomerValidator()
         {

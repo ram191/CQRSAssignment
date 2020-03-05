@@ -7,6 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DecoratorPattern.Model;
 using Microsoft.Extensions.Logging;
+using MediatR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using DecoratorPattern.Application.UseCases.CustomerMediator.Queries.GetCustomers;
+using DecoratorPattern.Application.UseCases.CustomerMediator.Commands;
 
 namespace DecoratorPattern.Controllers
 {
@@ -14,84 +19,48 @@ namespace DecoratorPattern.Controllers
     [Route("[controller]")]
     public class CustomerController : ControllerBase
     {
-        private readonly ILogger<CustomerController> _logger;
-        private readonly ECommerceContext _context;
+        private IMediator _mediatr;
 
-        public CustomerController(ILogger<CustomerController> logger, ECommerceContext context)
+        public CustomerController(IMediator mediatr)
         {
-            _logger = logger;
-            _context = context;
+            _mediatr = mediatr;
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<ActionResult<GetCustomersDTO>> Get()
         {
-            List<object> allData = new List<object>();
-            var data = _context.Customers;
-            foreach (var x in data)
-            {
-                allData.Add(new { x.Id, x.Full_name, x.Username, x.Email, x.Phone_number, gender = Enum.GetName(typeof(Gender), x.Sex)});
-            }
-            return Ok(new { Message = "Success retreiving data", Status = true, Data = allData });
+            var result = new GetCustomersQuery();
+            return Ok(await _mediatr.Send(result));
         }
 
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> GetAsync(int id)
         {
-            var data = _context.Customers.Find(id);
-
-            if (data == null)
-            {
-                return NotFound(new { Message = "Customer not found", Status = false });
-            }
-
-            return Ok(new { Message = "Success retreiving data", Status = true, Data = data });
+            var result = new GetCustomerQuery(id);
+            return result != null ? (IActionResult)Ok(await _mediatr.Send(result)) : NotFound(new { Message = "Customer not found" });
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var data = await _context.Customers.FindAsync(id);
-
-            if (data == null)
-            {
-                return NotFound(new { Message = "Customer not found", Status = false });
-            }
-
-            _context.Customers.Remove(data);
-            await _context.SaveChangesAsync();
-
-            return StatusCode(204);
+            var command = new DeleteCustomerCommand(id);
+            var result = await _mediatr.Send(command);
+            return result != null ? (IActionResult)Ok(new { Message = "success" }) : NotFound( new { Message = "Customer not found"});
         }
 
         [HttpPost]
-        public IActionResult Post(RequestData<Customer> data)
+        public async Task<IActionResult> PostAsync(CustomerCommand data)
         {
-            if(data.Data.Attributes.Gender == "male")
-            {
-                data.Data.Attributes.Sex = Gender.male;
-            }
-            else if(data.Data.Attributes.Gender == "female")
-            {
-                data.Data.Attributes.Sex = Gender.female;
-            }
-            _context.Customers.Add(data.Data.Attributes);
-            _context.SaveChanges();
-            return Ok();
+            var result = await _mediatr.Send(data);
+            return Ok(result);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(int id, RequestData<Customer> data)
+        public async Task<IActionResult> Put(int id, PutCustomerCommand data)
         {
-            var query = _context.Customers.Find(id);
-            query.Full_name = data.Data.Attributes.Full_name;
-            query.Username = data.Data.Attributes.Username;
-            query.Birthdate = data.Data.Attributes.Birthdate;
-            query.Email = data.Data.Attributes.Email;
-            query.Phone_number = data.Data.Attributes.Phone_number;
-            query.Updated_at = DateTime.Now;
-            _context.SaveChanges();
-            return NoContent();
+            data.Data.Attributes.Id = id;
+            var result = await _mediatr.Send(data);
+            return Ok(result);
         }
     }
 }

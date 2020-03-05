@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using DecoratorPattern.Model;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authorization;
+using MediatR;
+using DecoratorPattern.Application.UseCases.MerchantMediator.Queries.GetMerchants;
+using DecoratorPattern.Application.UseCases.MerchantMediator.Commands;
 
 namespace DecoratorPattern.Controllers
 {
@@ -16,69 +19,48 @@ namespace DecoratorPattern.Controllers
     [Authorize]
     public class MerchantController : ControllerBase
     {
-        private readonly ILogger<MerchantController> _logger;
-        private readonly ECommerceContext _context;
+        private IMediator _mediatr;
 
-        public MerchantController(ILogger<MerchantController> logger, ECommerceContext context)
+        public MerchantController(IMediator mediatr)
         {
-            _logger = logger;
-            _context = context;
+            _mediatr = mediatr;
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<ActionResult<GetMerchantsDTO>> Get()
         {
-            return Ok(new { Message = "Success retreiving data", Status = true, Data = _context.Merchants });
+            var result = new GetMerchantsQuery();
+            return Ok(await _mediatr.Send(result));
         }
 
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> GetAsync(int id)
         {
-            var data = _context.Merchants.Find(id);
-
-            if (data == null)
-            {
-                return NotFound(new { Message = "Product not found", Status = false });
-            }
-
-            return Ok(new { Message = "Success retreiving data", Status = true, Data = data });
+            var result = new GetMerchantQuery(id);
+            return result != null ? (IActionResult)Ok(await _mediatr.Send(result)) : NotFound(new { Message = "Merchant not found" });
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var data = await _context.Merchants.FindAsync(id);
-
-            if (data == null)
-            {
-                return NotFound(new { Message = "Product not found", Status = false });
-            }
-
-            _context.Merchants.Remove(data);
-            await _context.SaveChangesAsync();
-
-            return StatusCode(204);
+            var command = new DeleteMerchantCommand(id);
+            var result = await _mediatr.Send(command);
+            return result != null ? (IActionResult)Ok(new { Message = "success" }) : NotFound(new { Message = "Merchant not found" });
         }
 
         [HttpPost]
-        public IActionResult Post(RequestData<Merchant> data)
+        public async Task<IActionResult> PostAsync(MerchantCommand data)
         {
-            _context.Merchants.Add(data.Data.Attributes);
-            _context.SaveChanges();
-            return Ok();
+            var result = await _mediatr.Send(data);
+            return Ok(result);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(int id, RequestData<Merchant> data)
+        public async Task<IActionResult> Put(int id, PutMerchantCommand data)
         {
-            var query = _context.Merchants.Find(id);
-            query.Name = data.Data.Attributes.Name;
-            query.Image = data.Data.Attributes.Image;
-            query.Address = data.Data.Attributes.Address;
-            query.Rating = data.Data.Attributes.Rating;
-            query.Updated_at = data.Data.Attributes.Updated_at;
-            _context.SaveChanges();
-            return NoContent();
+            data.Data.Attributes.Id = id;
+            var result = await _mediatr.Send(data);
+            return Ok(result);
         }
     }
 }
