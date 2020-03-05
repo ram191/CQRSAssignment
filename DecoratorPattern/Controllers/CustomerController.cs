@@ -27,7 +27,7 @@ namespace DecoratorPattern.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<GetCustomersDTO>> Get()
+        public async Task<ActionResult> Get()
         {
             var result = new GetCustomersQuery();
             return Ok(await _mediatr.Send(result));

@@ -23,6 +23,9 @@ using System.Reflection;
 using DecoratorPattern.Application.UseCases.CustomerMediator.Queries.GetCustomers;
 using DecoratorPattern.Application.UseCases.CustomerMediator.Commands;
 using DecoratorPattern.Application.UseCases.CustomerPaymentCardMediator.Queries.GetCPC;
+using DecoratorPattern.Application.UseCases.CustomerPaymentCardMediator.Commands;
+using DecoratorPattern.Application.UseCases.ProductMediator.Commands;
+using DecoratorPattern.Application.UseCases.MerchantMediator.Commands;
 
 namespace DecoratorPattern
 {
@@ -46,9 +49,14 @@ namespace DecoratorPattern
             services.AddMediatR(typeof(GetCustomerPaymentCardQueryHandler).GetTypeInfo().Assembly);
             services.AddMvc().AddFluentValidation();
             services.AddTransient<IValidator<CustomerCommand>, CustomerValidator>();
-            //services.AddTransient<IValidator<RequestData<CustomerPaymentCard>>, CustomerPaymentValidator>();
-            //services.AddTransient<IValidator<RequestData<Product>>, ProductValidator>();
-            //services.AddTransient<IValidator<RequestData<Merchant>>, MerchantValidator>();
+            services.AddTransient<IValidator<PutCustomerCommand>, CustomerValidator>();
+            services.AddTransient<IValidator<CustomerPaymentCardCommand>, CustomerPaymentValidator>();
+            services.AddTransient<IValidator<PutCustomerPaymentCardCommand>, CustomerPaymentValidator>();
+            services.AddTransient<IValidator<ProductCommand>, ProductValidator>();
+            services.AddTransient<IValidator<PutProductCommand>, ProductValidator>();
+            services.AddTransient<IValidator<MerchantCommand>, MerchantValidator>();
+            services.AddTransient<IValidator<PutMerchantCommand>, MerchantValidator>();
+
 
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestValidator<,>));
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
@@ -57,7 +65,7 @@ namespace DecoratorPattern
                 {
                     ValidateIssuer = true,
                     ValidateAudience = true,
-                    //ValidateLifetime = true,
+                    ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = Configuration["Jwt:Issuer"],
                     ValidAudience = Configuration["Jwt:Issuer"],
