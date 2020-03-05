@@ -28,6 +28,7 @@ namespace DecoratorPattern.Application.UseCases.CustomerMediator.Commands
             }
             _context.Customers.Add(request.Data.Attributes);
             await _context.SaveChangesAsync();
+
             return new GetCustomerDTO
             {
                 Message = "Successfully Added",

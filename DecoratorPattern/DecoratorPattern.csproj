@@ -36,5 +36,9 @@
     <Folder Include="Application\UseCases\CustomerMediator\Queries\GetCustomer\" />
     <Folder Include="Application\UseCases\CustomerMediator\Commands\" />
     <Folder Include="Application\UseCases\CustomerPaymentCardMediator\" />
+    <Folder Include="Application\UseCases\CustomerMediator\CustomerMediator\" />
+    <Folder Include="Application\UseCases\MerchantMediator\" />
+    <Folder Include="Application\UseCases\ProductMediator\" />
+    <Folder Include="Application\UseCases\AuthMediator\" />
   </ItemGroup>
 </Project>

@@ -56,13 +56,11 @@ namespace DecoratorPattern.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, CustomerCommand data)
+        public async Task<IActionResult> Put(int id, PutCustomerCommand data)
         {
             data.Data.Attributes.Id = id;
             var result = await _mediatr.Send(data);
             return Ok(result);
-
-
         }
     }
 }

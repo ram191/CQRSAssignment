@@ -42,7 +42,6 @@ namespace DecoratorPattern
                 => opt.UseNpgsql("Host=localhost;Database=ecommercedb;Username=postgres;Password=gigaming"));
             services.AddControllers();
 
-            services.AddMediatR(typeof(GetCustomersQueryHandler).GetTypeInfo().Assembly);
             services.AddMediatR(typeof(GetCustomerQueryHandler).GetTypeInfo().Assembly);
             services.AddMediatR(typeof(GetCustomerPaymentCardQueryHandler).GetTypeInfo().Assembly);
             services.AddMvc().AddFluentValidation();
@@ -58,7 +57,7 @@ namespace DecoratorPattern
                 {
                     ValidateIssuer = true,
                     ValidateAudience = true,
-                    ValidateLifetime = true,
+                    //ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = Configuration["Jwt:Issuer"],
                     ValidAudience = Configuration["Jwt:Issuer"],

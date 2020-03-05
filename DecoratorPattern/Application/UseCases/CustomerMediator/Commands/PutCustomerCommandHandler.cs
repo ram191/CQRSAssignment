@@ -7,7 +7,7 @@ using MediatR;
 
 namespace DecoratorPattern.Application.UseCases.CustomerMediator.Commands
 {
-    public class PutCustomerCommandHandler : IRequestHandler<CustomerCommand, GetCustomerDTO>
+    public class PutCustomerCommandHandler : IRequestHandler<PutCustomerCommand, GetCustomerDTO>
     {
         private readonly ECommerceContext _context;
 
@@ -16,7 +16,7 @@ namespace DecoratorPattern.Application.UseCases.CustomerMediator.Commands
             _context = context;
         }
 
-        public async Task<GetCustomerDTO> Handle(CustomerCommand request, CancellationToken cancellationToken)
+        public async Task<GetCustomerDTO> Handle(PutCustomerCommand request, CancellationToken cancellationToken)
         {
             var query = await _context.Customers.FindAsync(request.Data.Attributes.Id);
             query.Full_name = request.Data.Attributes.Full_name;

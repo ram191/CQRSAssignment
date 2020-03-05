@@ -7,7 +7,7 @@ using MediatR;
 
 namespace DecoratorPattern.Application.UseCases.CustomerPaymentCardMediator.Commands
 {
-    public class PutCustomerPaymentCardCommandHandler : IRequestHandler<CustomerPaymentCardCommand, GetCustomerPaymentCardDTO>
+    public class PutCustomerPaymentCardCommandHandler : IRequestHandler<PutCustomerPaymentCardCommand, GetCustomerPaymentCardDTO>
     {
         private readonly ECommerceContext _context;
 
@@ -16,7 +16,7 @@ namespace DecoratorPattern.Application.UseCases.CustomerPaymentCardMediator.Comm
             _context = context;
         }
 
-        public async Task<GetCustomerPaymentCardDTO> Handle(CustomerPaymentCardCommand request, CancellationToken cancellationToken)
+        public async Task<GetCustomerPaymentCardDTO> Handle(PutCustomerPaymentCardCommand request, CancellationToken cancellationToken)
         {
             var query = await _context.CustomerPaymentCards.FindAsync(request.Data.Attributes.Id);
             query.Id = query.Id;
@@ -27,7 +27,7 @@ namespace DecoratorPattern.Application.UseCases.CustomerPaymentCardMediator.Comm
             query.Postal_code = request.Data.Attributes.Postal_code;
             query.Credit_card_number = request.Data.Attributes.Credit_card_number;
             query.Updated_at = DateTime.Now;
-            _context.Update(request.Data.Attributes);
+            _context.SaveChanges();
             return new GetCustomerPaymentCardDTO
             {
                 Message = "Success retreiving data",
