@@ -1,85 +1,67 @@
-//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Threading.Tasks;
-//using Microsoft.AspNetCore.Mvc;
-//using Microsoft.AspNetCore.Mvc.Rendering;
-//using Microsoft.EntityFrameworkCore;
-//using DecoratorPattern.Model;
-//using Microsoft.Extensions.Logging;
-//using Microsoft.AspNetCore.Authorization;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using DecoratorPattern.Model;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
+using MediatR;
+using DecoratorPattern.Application.UseCases.CustomerPaymentCardMediator.Queries.GetCPCs;
+using DecoratorPattern.Application.UseCases.CustomerPaymentCardMediator.Queries.GetCPC;
+using DecoratorPattern.Application.UseCases.CustomerPaymentCardMediator.Commands;
 
-//namespace DecoratorPattern.Controllers
-//{
-//    [ApiController]
-//    [Route("[controller]")]
-//    [Authorize]
-//    public class CustomerPaymentCardController : ControllerBase
-//    {
-//        private readonly ILogger<CustomerPaymentCardController> _logger;
-//        private readonly ECommerceContext _context;
+namespace DecoratorPattern.Controllers
+{
+    [ApiController]
+    [Route("[controller]")]
+    [Authorize]
+    public class CustomerPaymentCardController : ControllerBase
+    {
+        private IMediator _mediatr;
 
-//        public CustomerPaymentCardController(ILogger<CustomerPaymentCardController> logger, ECommerceContext context)
-//        {
-//            _logger = logger;
-//            _context = context;
-//        }
+        public CustomerPaymentCardController(IMediator mediatr)
+        {
+            _mediatr = mediatr;
+        }
 
-//        [HttpGet]
-//        public IActionResult Get()
-//        {
-//            return Ok(new { Message = "Success retreiving data", Status = true, Data = _context.CustomerPaymentCards });
-//        }
+        [HttpGet]
+        public async Task<ActionResult<GetCustomerPaymentCardsDTO>> Get()
+        {
+            var result = new GetCustomerPaymentCardsQuery();
+            return Ok(await _mediatr.Send(result));
+        }
 
-//        [HttpGet("{id}")]
-//        public IActionResult Get(int id)
-//        {
-//            var data = _context.CustomerPaymentCards.Find(id);
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetAsync(int id)
+        {
+            var result = new GetCustomerPaymentCardQuery(id);
+            return result != null ? (IActionResult)Ok(await _mediatr.Send(result)) : NotFound(new { Message = "Customer not found" });
+        }
 
-//            if (data == null)
-//            {
-//                return NotFound(new { Message = "Product not found", Status = false });
-//            }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var command = new DeleteCustomerPaymentCardCommand(id);
+            var result = await _mediatr.Send(command);
+            return result != null ? (IActionResult)Ok(new { Message = "success" }) : NotFound(new { Message = "Customer not found" });
+        }
 
-//            return Ok(new { Message = "Success retreiving data", Status = true, Data = data });
-//        }
+        [HttpPost]
+        public async Task<IActionResult> PostAsync(CustomerPaymentCardCommand data)
+        {
+            var result = await _mediatr.Send(data);
+            return Ok(result);
+        }
 
-//        [HttpDelete("{id}")]
-//        public async Task<IActionResult> Delete(int id)
-//        {
-//            var data = await _context.CustomerPaymentCards.FindAsync(id);
-
-//            if (data == null)
-//            {
-//                return NotFound(new { Message = "Product not found", Status = false });
-//            }
-
-//            _context.CustomerPaymentCards.Remove(data);
-//            await _context.SaveChangesAsync();
-
-//            return StatusCode(204);
-//        }
-
-//        [HttpPost]
-//        public IActionResult Post(RequestData<CustomerPaymentCard> data)
-//        {
-//            _context.CustomerPaymentCards.Add(data.Data.Attributes);
-//            _context.SaveChanges();
-//            return Ok();
-//        }
-
-//        [HttpPut("{id}")]
-//        public IActionResult Put(int id, RequestData<CustomerPaymentCard> data)
-//        {
-//            var query = _context.CustomerPaymentCards.Find(id);
-//            query.Name_on_card = data.Data.Attributes.Name_on_card;
-//            query.Exp_month = data.Data.Attributes.Exp_month;
-//            query.Exp_year = data.Data.Attributes.Exp_year;
-//            query.Postal_code = data.Data.Attributes.Postal_code;
-//            query.Credit_card_number = data.Data.Attributes.Credit_card_number;
-//            query.Updated_at = data.Data.Attributes.Updated_at;
-//            _context.SaveChanges();
-//            return NoContent();
-//        }
-//    }
-//}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(int id, CustomerPaymentCardCommand data)
+        {
+            data.Data.Attributes.Id = id;
+            var result = await _mediatr.Send(data);
+            return Ok(result);
+        }
+    }
+}

@@ -19,8 +19,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using DecoratorPattern.Application.UseCases.Product.Queries.GetCustomers;
 using System.Reflection;
+using DecoratorPattern.Application.UseCases.CustomerMediator.Queries.GetCustomers;
+using DecoratorPattern.Application.UseCases.CustomerMediator.Commands;
+using DecoratorPattern.Application.UseCases.CustomerPaymentCardMediator.Queries.GetCPC;
 
 namespace DecoratorPattern
 {
@@ -41,8 +43,10 @@ namespace DecoratorPattern
             services.AddControllers();
 
             services.AddMediatR(typeof(GetCustomersQueryHandler).GetTypeInfo().Assembly);
+            services.AddMediatR(typeof(GetCustomerQueryHandler).GetTypeInfo().Assembly);
+            services.AddMediatR(typeof(GetCustomerPaymentCardQueryHandler).GetTypeInfo().Assembly);
             services.AddMvc().AddFluentValidation();
-            //services.AddTransient<IValidator<RequestData<Customer>>, CustomerValidator>();
+            services.AddTransient<IValidator<CustomerCommand>, CustomerValidator>();
             //services.AddTransient<IValidator<RequestData<CustomerPaymentCard>>, CustomerPaymentValidator>();
             //services.AddTransient<IValidator<RequestData<Product>>, ProductValidator>();
             //services.AddTransient<IValidator<RequestData<Merchant>>, MerchantValidator>();

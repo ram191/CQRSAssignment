@@ -5,9 +5,9 @@ using DecoratorPattern.Model;
 using MediatR;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using DecoratorPattern.Application.UseCases.Product.Models;
+using System.Collections.Generic;
 
-namespace DecoratorPattern.Application.UseCases.Product.Queries.GetCustomers
+namespace DecoratorPattern.Application.UseCases.CustomerMediator.Queries.GetCustomers
 {
     public class GetCustomersQueryHandler : IRequestHandler<GetCustomersQuery, GetCustomersDTO>
     {
@@ -21,23 +21,28 @@ namespace DecoratorPattern.Application.UseCases.Product.Queries.GetCustomers
         public async Task<GetCustomersDTO> Handle(GetCustomersQuery request, CancellationToken cancellationToken)
         {
             var data = await _context.Customers.ToListAsync();
+            var result = new List<CustomerData>();
 
-            var result = data.Select(c => new CustomerData
+            foreach(var x in data)
             {
-                Full_name = c.Full_name,
-                Username = c.Username,
-                Birthdate = c.Birthdate,
-                Password = c.Password,
-                Gender = Enum.GetName(typeof(Model.Gender), c.Sex),
-                Email = c.Email,
-                Phone_number = c.Phone_number
-            });
+                result.Add(new CustomerData
+                {
+                    Id = x.Id,
+                    Full_name = x.Full_name,
+                    Username = x.Username,
+                    Birthdate = x.Birthdate,
+                    Password = x.Password,
+                    Gender = Enum.GetName(typeof(Gender), x.Sex),
+                    Email = x.Email,
+                    Phone_number = x.Phone_number
+                });
+            }
 
             return new GetCustomersDTO
             {
                 Message = "Success retrieving data",
                 Success = true,
-                Data = result.ToList()
+                Data = result
             };
         }
     }
