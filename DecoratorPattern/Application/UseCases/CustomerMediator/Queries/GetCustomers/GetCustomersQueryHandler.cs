@@ -6,6 +6,9 @@ using MediatR;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using MimeKit;
+using MailKit.Net.Smtp;
+using Hangfire;
 
 namespace DecoratorPattern.Application.UseCases.CustomerMediator.Queries.GetCustomers
 {
@@ -20,6 +23,7 @@ namespace DecoratorPattern.Application.UseCases.CustomerMediator.Queries.GetCust
 
         public async Task<GetCustomersDTO> Handle(GetCustomersQuery request, CancellationToken cancellationToken)
         {
+            BackgroundJob.Enqueue(() => Console.WriteLine("Getting All Customer Data"));
             var data = await _context.Customers.ToListAsync();
             var result = new List<CustomerData>();
 

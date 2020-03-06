@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DecoratorPattern.Application.UseCases.CustomerMediator.Queries.GetCustomers;
 using DecoratorPattern.Model;
+using Hangfire;
 using MediatR;
 
 namespace DecoratorPattern.Application.UseCases.CustomerMediator.Commands
@@ -18,6 +19,7 @@ namespace DecoratorPattern.Application.UseCases.CustomerMediator.Commands
 
         public async Task<GetCustomerDTO> Handle(CustomerCommand request, CancellationToken cancellationToken)
         {
+            BackgroundJob.Enqueue(() => Console.WriteLine("Adding A Customer Data"));
             if (request.Data.Attributes.Gender == "male")
             {
                 request.Data.Attributes.Sex = Gender.male;

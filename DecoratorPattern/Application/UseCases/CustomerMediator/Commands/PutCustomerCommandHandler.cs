@@ -3,7 +3,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using DecoratorPattern.Application.UseCases.CustomerMediator.Queries.GetCustomers;
 using DecoratorPattern.Model;
+using Hangfire;
+using MailKit.Net.Smtp;
 using MediatR;
+using MimeKit;
 
 namespace DecoratorPattern.Application.UseCases.CustomerMediator.Commands
 {
@@ -18,6 +21,7 @@ namespace DecoratorPattern.Application.UseCases.CustomerMediator.Commands
 
         public async Task<GetCustomerDTO> Handle(PutCustomerCommand request, CancellationToken cancellationToken)
         {
+            BackgroundJob.Enqueue(() => Console.WriteLine("Updating A Customer Data"));
             var query = await _context.Customers.FindAsync(request.Data.Attributes.Id);
             query.Full_name = request.Data.Attributes.Full_name;
             query.Username = request.Data.Attributes.Username;
@@ -26,6 +30,7 @@ namespace DecoratorPattern.Application.UseCases.CustomerMediator.Commands
             query.Phone_number = request.Data.Attributes.Phone_number;
             query.Updated_at = DateTime.Now;
             _context.SaveChanges();
+
             return new GetCustomerDTO
             {
                 Message = "Success retreiving data",

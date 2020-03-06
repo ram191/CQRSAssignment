@@ -26,6 +26,8 @@ using DecoratorPattern.Application.UseCases.CustomerPaymentCardMediator.Queries.
 using DecoratorPattern.Application.UseCases.CustomerPaymentCardMediator.Commands;
 using DecoratorPattern.Application.UseCases.ProductMediator.Commands;
 using DecoratorPattern.Application.UseCases.MerchantMediator.Commands;
+using Hangfire;
+using Hangfire.PostgreSql;
 
 namespace DecoratorPattern
 {
@@ -44,6 +46,8 @@ namespace DecoratorPattern
             services.AddDbContext<ECommerceContext>(opt
                 => opt.UseNpgsql("Host=localhost;Database=ecommercedb;Username=postgres;Password=gigaming"));
             services.AddControllers();
+            services.AddHangfire(config =>
+                config.UsePostgreSqlStorage("Host=localhost;Database=aspnethangfiredb;Username=postgres;Password=gigaming"));
 
             services.AddMediatR(typeof(GetCustomerQueryHandler).GetTypeInfo().Assembly);
             services.AddMediatR(typeof(GetCustomerPaymentCardQueryHandler).GetTypeInfo().Assembly);
@@ -81,6 +85,12 @@ namespace DecoratorPattern
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseHangfireServer();
+
+            app.UseHangfireDashboard();
+            BackgroundJob.Enqueue(() => Console.WriteLine("Hello world from hangfire!"));
+            RecurringJob.AddOrUpdate(() => Console.WriteLine("Recurring Task"), Cron.Minutely);
 
             app.UseHttpsRedirection();
 

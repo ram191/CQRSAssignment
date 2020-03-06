@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using DecoratorPattern.Application.UseCases.CustomerMediator.Queries.GetCustomers;
 using DecoratorPattern.Application.UseCases.CustomerMediator.Commands;
+using Hangfire;
 
 namespace DecoratorPattern.Controllers
 {

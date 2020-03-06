@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DecoratorPattern.Application.UseCases.CustomerMediator.Request;
 using DecoratorPattern.Model;
+using Hangfire;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,6 +20,7 @@ namespace DecoratorPattern.Application.UseCases.CustomerMediator.Commands
 
         public async Task<CustomerDTO> Handle(DeleteCustomerCommand request, CancellationToken cancellationToken)
         {
+            BackgroundJob.Enqueue(() => Console.WriteLine("Deleting A Customer Data"));
             var data = await _context.Customers.FindAsync(request.Id);
 
             if (data == null)
