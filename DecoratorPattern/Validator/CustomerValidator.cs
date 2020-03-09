@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using DecoratorPattern.Model;
 using FluentValidation;
+using DecoratorPattern.Application.UseCases.CustomerMediator.Commands;
 
 namespace DecoratorPattern.Validator
 {
-    public class CustomerValidator : AbstractValidator<CommandDTO<Customer>>
-    {
+    public class CustomerValidator : AbstractValidator<CustomerCommand>
+    { 
         public CustomerValidator()
         {
             RuleFor(x => x.Data.Attributes.Username).NotEmpty().WithMessage("username can't be empty");

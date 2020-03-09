@@ -1,10 +1,11 @@
 ﻿using System;
+using DecoratorPattern.Application.UseCases.ProductMediator.Commands;
 using DecoratorPattern.Model;
 using FluentValidation;
 
 namespace DecoratorPattern.Validator
 {
-    public class ProductValidator : AbstractValidator<CommandDTO<Product>>
+    public class ProductValidator : AbstractValidator<ProductCommand>
     {
         public ProductValidator()
         {

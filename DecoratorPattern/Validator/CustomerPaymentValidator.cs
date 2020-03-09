@@ -1,10 +1,11 @@
 ﻿using System;
+using DecoratorPattern.Application.UseCases.CustomerPaymentCardMediator.Commands;
 using DecoratorPattern.Model;
 using FluentValidation;
 
 namespace DecoratorPattern.Validator
 {
-    public class CustomerPaymentValidator : AbstractValidator<CommandDTO<CustomerPaymentCard>>
+    public class CustomerPaymentValidator : AbstractValidator<CustomerPaymentCardCommand>
     {
         public CustomerPaymentValidator()
         {

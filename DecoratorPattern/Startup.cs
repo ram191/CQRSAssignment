@@ -28,6 +28,8 @@ using DecoratorPattern.Application.UseCases.ProductMediator.Commands;
 using DecoratorPattern.Application.UseCases.MerchantMediator.Commands;
 using Hangfire;
 using Hangfire.PostgreSql;
+using System.Net;
+using System.Net.Mail;
 
 namespace DecoratorPattern
 {
@@ -51,15 +53,15 @@ namespace DecoratorPattern
 
             services.AddMediatR(typeof(GetCustomerQueryHandler).GetTypeInfo().Assembly);
             services.AddMediatR(typeof(GetCustomerPaymentCardQueryHandler).GetTypeInfo().Assembly);
-            services.AddMvc().AddFluentValidation();
-            services.AddTransient<IValidator<CustomerCommand>, CustomerValidator>();
-            services.AddTransient<IValidator<PutCustomerCommand>, CustomerValidator>();
-            services.AddTransient<IValidator<CustomerPaymentCardCommand>, CustomerPaymentValidator>();
-            services.AddTransient<IValidator<PutCustomerPaymentCardCommand>, CustomerPaymentValidator>();
-            services.AddTransient<IValidator<ProductCommand>, ProductValidator>();
-            services.AddTransient<IValidator<PutProductCommand>, ProductValidator>();
-            services.AddTransient<IValidator<MerchantCommand>, MerchantValidator>();
-            services.AddTransient<IValidator<PutMerchantCommand>, MerchantValidator>();
+            services.AddMvc().AddFluentValidation(opt => opt.RegisterValidatorsFromAssemblyContaining(typeof(CustomerValidator)));
+            //services.AddTransient<IValidator<CustomerCommand>, CustomerValidator>();
+            //services.AddTransient<IValidator<PutCustomerCommand>, CustomerValidator>();
+            //services.AddTransient<IValidator<CustomerPaymentCardCommand>, CustomerPaymentValidator>();
+            //services.AddTransient<IValidator<PutCustomerPaymentCardCommand>, CustomerPaymentValidator>();
+            //services.AddTransient<IValidator<ProductCommand>, ProductValidator>();
+            //services.AddTransient<IValidator<PutProductCommand>, ProductValidator>();
+            //services.AddTransient<IValidator<MerchantCommand>, MerchantValidator>();
+            //services.AddTransient<IValidator<PutMerchantCommand>, MerchantValidator>();
 
 
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestValidator<,>));
@@ -91,6 +93,15 @@ namespace DecoratorPattern
             app.UseHangfireDashboard();
             BackgroundJob.Enqueue(() => Console.WriteLine("Hello world from hangfire!"));
             RecurringJob.AddOrUpdate(() => Console.WriteLine("Recurring Task"), Cron.Minutely);
+
+            var client = new SmtpClient("smtp.mailtrap.io", 2525)
+            {
+                Credentials = new NetworkCredential("4101aedaf3b46c", "e05b5c377ba6d8"),
+                EnableSsl = true
+            };
+            BackgroundJob.Enqueue(() => client.Send("ali_rayhan19@yahoo.com", "ali_rayhan19@yahoo.com", "Hello world", "testbody"));
+            
+            Console.WriteLine("Sent");
 
             app.UseHttpsRedirection();
 

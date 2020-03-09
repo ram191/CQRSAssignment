@@ -22,18 +22,9 @@ namespace DecoratorPattern.Application.UseCases.CustomerMediator.Queries.GetCust
 
         async Task<GetCustomerDTO> IRequestHandler<GetCustomerQuery, GetCustomerDTO>.Handle(GetCustomerQuery request, CancellationToken cancellationToken)
         {
-            BackgroundJob.Enqueue(() => Console.WriteLine("Getting A Customer Data"));
+            //BackgroundJob.Enqueue(() => Console.WriteLine("Getting A Customer Data"));
 
             var data = await _context.Customers.FindAsync(request.Id);
-
-            var client = new SmtpClient("smtp.mailtrap.io", 2525)
-            {
-                Credentials = new NetworkCredential("4101aedaf3b46c", "e05b5c377ba6d8"),
-                EnableSsl = true
-            };
-            client.Send("ali_rayhan19@yahoo.com", "ali_rayhan19@yahoo.com", "Hello world", "testbody");
-            Console.WriteLine("Sent");
-            Console.ReadLine();
 
             if (data == null)
             {

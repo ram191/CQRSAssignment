@@ -1,10 +1,11 @@
 ﻿using System;
+using DecoratorPattern.Application.UseCases.MerchantMediator.Commands;
 using DecoratorPattern.Model;
 using FluentValidation;
 
 namespace DecoratorPattern.Validator
 {
-    public class MerchantValidator : AbstractValidator<CommandDTO<Merchant>>
+    public class MerchantValidator : AbstractValidator<MerchantCommand>
     {
         public MerchantValidator()
         {

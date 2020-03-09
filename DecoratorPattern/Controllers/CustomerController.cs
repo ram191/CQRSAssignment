@@ -37,8 +37,9 @@ namespace DecoratorPattern.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAsync(int id)
         {
-            var result = new GetCustomerQuery(id);
-            return result != null ? (IActionResult)Ok(await _mediatr.Send(result)) : NotFound(new { Message = "Customer not found" });
+            var command = new GetCustomerQuery(id);
+            var result = await _mediatr.Send(command);
+            return result != null ? (IActionResult)Ok(result) : NotFound(new { Message = "Customer not found" });
         }
 
         [HttpDelete("{id}")]
