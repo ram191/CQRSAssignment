@@ -30,6 +30,8 @@ using Hangfire;
 using Hangfire.PostgreSql;
 using System.Net;
 using System.Net.Mail;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 
 namespace DecoratorPattern
 {
@@ -92,15 +94,10 @@ namespace DecoratorPattern
 
             app.UseHangfireDashboard();
             BackgroundJob.Enqueue(() => Console.WriteLine("Hello world from hangfire!"));
-            RecurringJob.AddOrUpdate(() => Console.WriteLine("Recurring Task"), Cron.Minutely);
+            RecurringJob.AddOrUpdate<Mailing>(x => x.SendMail(), Cron.Minutely);
 
-            var client = new SmtpClient("smtp.mailtrap.io", 2525)
-            {
-                Credentials = new NetworkCredential("4101aedaf3b46c", "e05b5c377ba6d8"),
-                EnableSsl = true
-            };
-            BackgroundJob.Enqueue(() => client.Send("ali_rayhan19@yahoo.com", "ali_rayhan19@yahoo.com", "Hello world", "testbody"));
-            
+
+
             Console.WriteLine("Sent");
 
             app.UseHttpsRedirection();
@@ -115,6 +112,22 @@ namespace DecoratorPattern
             {
                 endpoints.MapControllers();
             });
+        }
+    }
+
+    public class Mailing
+    { 
+        public void SendMail()
+        {
+            var client = new SmtpClient("smtp.mailtrap.io", 2525)
+            {
+                Credentials = new NetworkCredential("4101aedaf3b46c", "e05b5c377ba6d8"),
+                EnableSsl = true
+            };
+
+            client.Send("ali_rayhan19@yahoo.com", "ali_rayhan19@yahoo.com", "Hello world", "testbody");
+
+            Console.WriteLine("Email has been sent");
         }
     }
 }
